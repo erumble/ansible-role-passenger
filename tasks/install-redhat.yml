@@ -1,0 +1,37 @@
+---
+# Passenger repository setup.
+- name: Setup passenger repository
+  yum_repository:
+    name: passenger
+    description: passenger repository
+    baseurl: 'https://oss-binaries.phusionpassenger.com/yum/passenger/el/$releasever/$basearch'
+    gpgkey: 'https://packagecloud.io/gpg.key'
+    repo_gpgcheck: yes
+    gpgcheck: no
+    enabled: yes
+    sslverify: yes
+    sslcacert: '/etc/pki/tls/certs/ca-bundle.crt'
+
+- name: Setup passenger-source repository
+  yum_repository:
+    name: passenger-source
+    description: passenger source repository
+    baseurl: 'https://oss-binaries.phusionpassenger.com/yum/passenger/el/$releasever/SRPMS'
+    gpgkey: 'https://packagecloud.io/gpg.key'
+    repo_gpgcheck: yes
+    gpgcheck: no
+    enabled: yes
+    sslverify: yes
+    sslcacert: '/etc/pki/tls/certs/ca-bundle.crt'
+
+# Install passenger and things
+- name: Install passenger and prerequisites
+  yum: 
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - pygpgme
+    - curl
+    - nginx
+    - passenger
+    - passenger-devel

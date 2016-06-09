@@ -1,2 +1,4 @@
 ---
 __nginx_user: "nginx"
+__nginx_group: "nginx"
+__passenger_root: "/usr/share/ruby/vendor_ruby/phusion_passenger/locations.ini"
