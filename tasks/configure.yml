@@ -1,0 +1,34 @@
+---
+# Nginx and passenger configuration.
+- name: Nginx Configure | create /etc/nginx/nginx.conf
+  template:
+    src: "{{ ansible_os_family }}_nginx.conf.j2"
+    dest: /etc/nginx/nginx.conf
+  notify: restart nginx
+
+- name: Nginx Configure | create /etc/nginx/conf.d/passenger.conf
+  template:
+    src: "{{ ansible_os_family }}_passenger.conf.j2"
+    dest: /etc/nginx/conf.d/passenger.conf
+  notify: restart nginx
+  when: (ansible_os_family == 'RedHat')
+
+# Set up virtual host
+- name: "Nginx Configure | create /etc/nginx/sites-available/{{ nginx_vhost_filename }}"
+  template:
+    src: "{{ nginx_vhost_template_actual }}"
+    dest: "/etc/nginx/sites-available/{{ nginx_vhost_filename }}"
+
+- name: "Nginx Configure | symlink {{ nginx_vhost_filename }} to /etc/nginx/sites-enabled/"
+  file:
+    src: "/etc/nginx/sites-available/{{ nginx_vhost_filename }}"
+    dest: "/etc/nginx/sites-enabled/{{ nginx_vhost_filename }}"
+    state: link
+  notify: restart nginx
+
+- name: Nginx Configure | remove /etc/nginx/sites-enabled/default if it exists
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  when: nginx_remove_default_vhost
+  notify: restart nginx

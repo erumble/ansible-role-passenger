@@ -1,6 +1,6 @@
 ---
 # Passenger repository setup.
-- name: Setup passenger repository
+- name: Nginx Install | setup passenger repository
   yum_repository:
     name: passenger
     description: passenger repository
@@ -12,7 +12,7 @@
     sslverify: yes
     sslcacert: '/etc/pki/tls/certs/ca-bundle.crt'
 
-- name: Setup passenger-source repository
+- name: Nginx Install | setup passenger-source repository
   yum_repository:
     name: passenger-source
     description: passenger source repository
@@ -25,7 +25,7 @@
     sslcacert: '/etc/pki/tls/certs/ca-bundle.crt'
 
 # Install passenger and things
-- name: Install passenger and prerequisites
+- name: Nginx Install | install packages
   yum: 
     name: "{{ item }}"
     state: latest
@@ -35,3 +35,15 @@
     - nginx
     - passenger
     - passenger-devel
+
+# Ensure sites directories exist, placed here to avoid duplication
+- name: Nginx Install | create /etc/nginx/{sites-available sites-enabled}
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: 0755
+  with_items:
+    - '/etc/nginx/sites-available'
+    - '/etc/nginx/sites-enabled'

@@ -1,0 +1,31 @@
+---
+# Variable setup.
+- name: Nginx Variable Setup | include os-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Nginx Variable Setup | define nginx_user
+  set_fact:
+    nginx_user: "{{ __nginx_user }}"
+  when: nginx_user is not defined
+
+- name: Nginx Variable Setup | define nginx_group
+  set_fact:
+    nginx_group: "{{ __nginx_group }}"
+  when: nginx_group is not defined
+
+- name: Nginx Variable Setup | define passenger_root
+  set_fact:
+    passenger_root: "{{ __passenger_root }}"
+  when: passenger_root is not defined
+
+- name: Nginx Variable Setup | use custom vhost template
+  set_fact:
+    nginx_vhost_template_actual: "{{ playbook_dir }}/templates/{{ nginx_vhost_template }}.j2"
+    nginx_vhost_filename: "{{ nginx_vhost_template }}"
+  when: nginx_vhost_template is defined
+
+- name: Nginx Variable Setup | use generic vhost template
+  set_fact:
+    nginx_vhost_template_actual: generic_vhost.j2
+    nginx_vhost_filename: generic_vhost
+  when: nginx_vhost_template is not defined

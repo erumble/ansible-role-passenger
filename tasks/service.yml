@@ -1,0 +1,7 @@
+---
+# Enable and start nginx
+- name: Nginx Service | enable and start nginx
+  service:
+    name: nginx
+    enabled: true
+    state: started

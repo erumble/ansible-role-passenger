@@ -1,79 +1,16 @@
 ---
-# Variable setup.
-- name: Include OS-specific variables.
-  include_vars: "{{ ansible_os_family }}.yml"
-
-- name: Define nginx_user.
-  set_fact:
-    nginx_user: "{{ __nginx_user }}"
-  when: nginx_user is not defined
-
-- name: Define nginx_group.
-  set_fact:
-    nginx_group: "{{ __nginx_group }}"
-  when: nginx_group is not defined
-
-- name: Define passenger_root.
-  set_fact:
-    passenger_root: "{{ __passenger_root }}"
-  when: passenger_root is not defined
+# Setup the variables to be used by the different tasks
+- include: variable_setup.yml
 
 # Include OS-specific installation tasks.
-- include: install-redhat.yml
+- include: install_redhat.yml
   when: (ansible_os_family == 'RedHat')
 
-- include: install-debian.yml
+- include: install_debian.yml
   when: (ansible_os_family == 'Debian')
 
-# Nginx and passenger configuration.
-- name: Copy Nginx configuration into place.
-  template:
-    src: "{{ ansible_os_family }}_nginx.conf.j2"
-    dest: /etc/nginx/nginx.conf
-  notify: restart nginx
+# configure nginx and passenger
+- include: configure.yml
 
-- name: Copy Passenger configuration into place.
-  template:
-    src: "{{ ansible_os_family }}_passenger.conf.j2"
-    dest: /etc/nginx/conf.d/passenger.conf
-  notify: restart nginx
-  when: (ansible_os_family == 'RedHat')
-
-# Ensure sites directories exist
-- name: Ensure site directories exist
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ nginx_user }}"
-    group: "{{ nginx_group }}"
-    mode: 0755
-  with_items:
-    - '/etc/nginx/sites-available'
-    - '/etc/nginx/sites-enabled'
-
-# Set up virtual host
-- name: Configure passenger virtual host.
-  template:
-    src: passenger.j2
-    dest: /etc/nginx/sites-available/passenger
-  notify: restart nginx
-
-- name: Ensure passenger virtual host is enabled.
-  file:
-    src: /etc/nginx/sites-available/passenger
-    dest: /etc/nginx/sites-enabled/passenger
-    state: link
-
-- name: Ensure default virtual host is removed.
-  file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
-  when: nginx_remove_default_vhost
-  notify: restart nginx
-
-# Enable and start nginx
-- name: Enable Nginx
-  service:
-    name: nginx
-    enabled: true
-    state: started
+# do the needful with respect to the nginx service
+- include: service.yml

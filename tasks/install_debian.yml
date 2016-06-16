@@ -1,22 +1,22 @@
 ---
 # Passenger repository setup.
-- name: Add Passenger apt key.
+- name: Nginx Install | add passenger apt key.
   apt_key:
     keyserver: keyserver.ubuntu.com
     id: 561F9B9CAC40B2F7
     state: present
 
-- name: Add apt HTTPS capabilities.
+- name: Nginx Install | add apt HTTPS capabilities.
   apt: name=apt-transport-https state=present
 
-- name: Add Phusion apt repo.
+- name: Nginx Install | add phusion apt repo.
   apt_repository:
     repo: 'deb https://oss-binaries.phusionpassenger.com/apt/passenger {{ansible_distribution_release}} main'
     state: present
     update_cache: yes
 
 # Nginx and passenger installation.
-- name: Install Nginx and Passenger.
+- name: Nginx Install | install packages
   apt: "pkg={{ item }} state=installed"
   with_items:
    - nginx-extras
