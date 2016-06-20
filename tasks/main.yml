@@ -3,11 +3,7 @@
 - include: variable_setup.yml
 
 # Include OS-specific installation tasks.
-- include: install_redhat.yml
-  when: (ansible_os_family == 'RedHat')
-
-- include: install_debian.yml
-  when: (ansible_os_family == 'Debian')
+- include: "install_{{ ansible_os_family }}.yml"
 
 # configure nginx and passenger
 - include: configure.yml
